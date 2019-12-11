@@ -27,7 +27,8 @@
     "arduino",
     "mbed",
     "stm32cube",
-    "zephyr"
+    "zephyr",
+    "detox"
   ],
   "name": "ST DISCO-L072CZ-LRWAN1",
   "upload": {
