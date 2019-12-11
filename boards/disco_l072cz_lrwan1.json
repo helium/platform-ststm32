@@ -20,7 +20,7 @@
     "onboard_tools": [
       "stlink"
     ],
-    "openocd_board": "stm32l0discovery",
+    "openocd_target": "stm32l0_dual_bank",
     "svd_path": "STM32L07x.svd"
   },
   "frameworks": [
