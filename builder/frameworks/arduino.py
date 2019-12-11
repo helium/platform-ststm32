@@ -44,7 +44,8 @@ if core == "maple":
         env.Exit(1)
 
 else:
-    SConscript(
-        join(env.PioPlatform().get_package_dir(
-            "framework-arduinoststm32"),
-            "tools", "platformio-build.py"))
+    if "detox" not in env.subst("$PIOFRAMEWORK"):
+        SConscript(
+            join(env.PioPlatform().get_package_dir(
+                "framework-arduinoststm32"),
+                "tools", "platformio-build.py"))

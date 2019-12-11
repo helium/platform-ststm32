@@ -45,6 +45,10 @@
     "zephyr": {
       "package": "framework-zephyr",
       "script": "builder/frameworks/zephyr.py"
+    },
+    "detox": {
+      "package": "framework-detox",
+      "script": "builder/frameworks/detox.py"
     }
   },
   "packages": {
@@ -100,6 +104,11 @@
     "framework-zephyr-hal-stm32": {
       "optional": true,
       "version": "~0.0.190619"
+    },
+    "framework-detox": {
+      "type": "framework",
+      "optional": true,
+      "version": "~0.0.1"
     },
     "tool-stm32duino": {
       "type": "uploader",
