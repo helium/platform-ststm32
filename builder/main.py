@@ -35,6 +35,8 @@ env.Replace(
     RANLIB="arm-none-eabi-ranlib",
     SIZETOOL="arm-none-eabi-size",
 
+    CAT="cat",
+
     ARFLAGS=["rc"],
 
     SIZEPROGREGEXP=r"^(?:\.text|\.data|\.rodata|\.text.align|\.ARM.exidx)\s+(\d+).*",
@@ -72,6 +74,27 @@ env.Append(
                 "$TARGET"
             ]), "Building $TARGET"),
             suffix=".hex"
+        ),
+        HexToElf=Builder(
+            action=env.VerboseAction(" ".join([
+                "$OBJCOPY",
+                "-I",
+                "ihex",
+                "$SOURCES",
+                "-O",
+                "elf32-littlearm",
+                "$TARGET"
+            ]), "Converting hex to elf $TARGET"),
+            suffix=".elf"
+        ),
+        CombineHex=Builder(
+            action=env.VerboseAction(" ".join([
+                "$CAT",
+                "$TARGET",
+                "$SOURCES",
+                ">"
+            ]), "Combining $TARGET"),
+            suffix=".hex"
         )
     )
 )
@@ -94,9 +117,32 @@ target_elf = None
 if "nobuild" in COMMAND_LINE_TARGETS:
     target_elf = join("$BUILD_DIR", "${PROGNAME}.elf")
     target_firm = join("$BUILD_DIR", "${PROGNAME}.bin")
-else:
+elif "detox" in env.get("PIOFRAMEWORK", []):
+    # env.SConscript(
+    #         join(platform.get_package_dir(
+    #             "framework-detox"), "platformio", "platformio-build-post.py"),
+    #         exports={"env": env}
+    #     )
+    print("******** GOT HERE ***********")
     target_elf = env.BuildProgram()
+
+    target_hex = env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
+    kernel_hex = env.ElfToHex(join("$BUILD_DIR", "detox-kernel"), join(platform.get_package_dir("framework-detox"), "detox-kernel", "detox-kernel.elf"))
+
+    print(target_hex)
+    print(kernel_hex)
+    print(type(kernel_hex))
+    # combined_elf = env.CombineHex(kernel_hex, target_hex)
+    print("cat " + kernel_hex.to + " " + target_hex[0] + " > " + "combined.hex")
+    env.Execute("cat " + kernel_hex + " " + target_hex + " > " + join("$BUILD_DIR", "combined.hex"))
+    # env.Command(kernel_hex, target_hex, "cat $TARGET $SOURCE >")
+    target_elf = env.HexToElf(join("$BUILD_DIR", "${PROGNAME}"), join("$BUILD_DIR", "combined.hex"))
+
+    # target_hex = env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
     target_firm = env.ElfToBin(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
+# else:
+#     target_elf = env.BuildProgram()
+#     target_firm = env.ElfToBin(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
 
 AlwaysBuild(env.Alias("nobuild", target_firm))
 target_buildprog = env.Alias("buildprog", target_firm, target_firm)
