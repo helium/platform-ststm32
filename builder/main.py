@@ -85,6 +85,16 @@ env.Append(
             ]), "Building $TARGET"),
             suffix=".hex"
         ),
+        KernelElfToHex=Builder(
+            action=env.VerboseAction(" ".join([
+                "$OBJCOPY",
+                "$SOURCES",
+                "-O",
+                "ihex",
+                "$TARGET"
+            ]), "Building $TARGET"),
+            suffix=".hex"
+        ),
         HexToElf=Builder(
             action=env.VerboseAction(" ".join([
                 "$OBJCOPY",
@@ -132,7 +142,7 @@ elif "detox" in env.get("PIOFRAMEWORK", []):
     target_elf = env.BuildProgram()
 
     target_hex = env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
-    kernel_hex = env.ElfToHex(join("$BUILD_DIR", "detox-kernel"), join(platform.get_package_dir("framework-detox"), "detox-kernel", "detox-kernel.elf"))
+    kernel_hex = env.KernelElfToHex(join("$BUILD_DIR", "detox-kernel"), join(platform.get_package_dir("framework-detox"), "detox-kernel", "detox-kernel.elf"))
 
     # print(target_hex)
     # print(kernel_hex)
@@ -145,7 +155,7 @@ elif "detox" in env.get("PIOFRAMEWORK", []):
 
     print("** BEFORE COMBINE **")
     print("$CAT " + str(kernel_hex) + " " + str(target_hex) + " > " + "combine.hex")
-    combined_elf = env.HexToElf(join("$BUILD_DIR", "combined.elf"), join("$BUILD_DIR", "combined.hex"))
+    combined_elf = env.HexToElf(join("$BUILD_DIR", "combined"), join("$BUILD_DIR", "combined.hex"))
 
 
     # target_hex = env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
