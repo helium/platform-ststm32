@@ -51,6 +51,16 @@ env.Replace(
 if env.get("PROGNAME", "program") == "program":
     env.Replace(PROGNAME="firmware")
 
+def combine_hex(source, target, env):
+    # cat source[0] source[1] > target[0]’
+    print(source[0])
+    print(source[1])
+    print(target[0])
+    print("$CAT " + str(source[0]) + " " + str(source[1]) + " > " + str(target[0]))
+    env.Execute("$CAT " + str(source[0]) + " " + str(source[1]) + " > " + str(target[0]))
+    return 0
+
+
 env.Append(
     BUILDERS=dict(
         ElfToBin=Builder(
@@ -88,12 +98,7 @@ env.Append(
             suffix=".elf"
         ),
         CombineHex=Builder(
-            action=env.VerboseAction(" ".join([
-                "$CAT",
-                "$TARGET",
-                "$SOURCES",
-                ">"
-            ]), "Combining $TARGET"),
+            action= combine_hex,
             suffix=".hex"
         )
     )
@@ -129,17 +134,22 @@ elif "detox" in env.get("PIOFRAMEWORK", []):
     target_hex = env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
     kernel_hex = env.ElfToHex(join("$BUILD_DIR", "detox-kernel"), join(platform.get_package_dir("framework-detox"), "detox-kernel", "detox-kernel.elf"))
 
-    print(target_hex)
-    print(kernel_hex)
-    print(type(kernel_hex))
-    # combined_elf = env.CombineHex(kernel_hex, target_hex)
-    print("cat " + kernel_hex.to + " " + target_hex[0] + " > " + "combined.hex")
-    env.Execute("cat " + kernel_hex + " " + target_hex + " > " + join("$BUILD_DIR", "combined.hex"))
-    # env.Command(kernel_hex, target_hex, "cat $TARGET $SOURCE >")
-    target_elf = env.HexToElf(join("$BUILD_DIR", "${PROGNAME}"), join("$BUILD_DIR", "combined.hex"))
+    # print(target_hex)
+    # print(kernel_hex)
+    # print(type(kernel_hex))
+    combined_hex = env.CombineHex(join("$BUILD_DIR", "combined"), [kernel_hex, target_hex])
+    # print("cat " + kernel_hex[0] + " " + target_hex[0] + " > " + "combined.hex")
+    # env.Execute("cat " + kernel_hex + " " + target_hex + " > " + join("$BUILD_DIR", "combined.hex"))
+    
+    # env.Command(join("$BUILD_DIR", "combined.hex"), target_hex, "cat $SOURCE > $TARGET")
+
+    print("** BEFORE COMBINE **")
+    print("$CAT " + str(kernel_hex) + " " + str(target_hex) + " > " + "combine.hex")
+    combined_elf = env.HexToElf(join("$BUILD_DIR", "combined.elf"), join("$BUILD_DIR", "combined.hex"))
+
 
     # target_hex = env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
-    target_firm = env.ElfToBin(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
+    target_firm = env.ElfToBin(join("$BUILD_DIR", "${PROGNAME}"), combined_elf)
 # else:
 #     target_elf = env.BuildProgram()
 #     target_firm = env.ElfToBin(join("$BUILD_DIR", "${PROGNAME}"), target_elf)
