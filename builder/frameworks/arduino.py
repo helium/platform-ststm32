@@ -42,7 +42,16 @@ if core == "maple":
         sys.stderr.write(
             "Error: %s family is not supported by maple core\n" % mcu[0:7])
         env.Exit(1)
-
+elif core == "mcci":
+    build_script = join(
+        env.PioPlatform().get_package_dir("framework-arduinoststm32-mcci"),
+        "tools", "platformio-build.py")
+    if isfile(build_script):
+        SConscript(build_script)
+    else:
+        sys.stderr.write(
+            "Error: %s family is not supported by mcci core\n" % mcu[0:7])
+        env.Exit(1)
 else:
     SConscript(
         join(env.PioPlatform().get_package_dir(

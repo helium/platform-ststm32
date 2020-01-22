@@ -82,6 +82,11 @@
       "optional": true,
       "version": "~1.10000.190516"
     },
+    "framework-arduinoststm32-mcci": {
+      "type": "framework",
+      "optional": true,
+      "version": "~0.0.1"
+    },
     "framework-arduinostm32mxchip": {
       "type": "framework",
       "optional": true,

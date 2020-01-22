@@ -29,6 +29,9 @@ class Ststm32Platform(PlatformBase):
             self.frameworks['arduino']['package'] = "framework-arduinoststm32-maple"
             self.packages["framework-arduinoststm32-maple"]["optional"] = False
             self.packages["framework-arduinoststm32"]["optional"] = True
+        elif "arduino" in variables.get("pioframework", []) and build_core == "mcci":
+            self.frameworks['arduino']['package'] = "framework-arduinoststm32-mcci"
+            self.packages["framework-arduinoststm32-mcci"]["optional"] = False
 
         default_protocol = self.board_config(variables.get(
             "board")).get("upload.protocol") or ""
